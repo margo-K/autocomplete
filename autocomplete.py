@@ -1,5 +1,3 @@
-import pprint
-
 def build_trie(word,trie={}):
 	letters = [letter for letter in word]
 	old_dict = trie
@@ -10,13 +8,10 @@ def build_trie(word,trie={}):
 		current_dict = old_dict.setdefault(current_letter,{})
 		old_dict = current_dict
 
-	print current_dict.keys()
+	current_dict['END'] = True
+	print "This is the final product"
 	print trie
 	return trie
-
-def print_trie(trie):
-	pass
-
 
 if __name__ == '__main__':
 	while True:
