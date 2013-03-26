@@ -1,45 +1,26 @@
-def build_trie(word):
-	"""Return the list of nodes with their parent"""
+import pprint
+
+def build_trie(word,trie={}):
 	letters = [letter for letter in word]
-	root = letters[0]
-	trie = Graph(root)
+	old_dict = trie
+	while letters:
+		current_letter, children = letters.pop(0),letters
+		"I'm now working on this:"
+		print current_letter, children
+		current_dict = old_dict.setdefault(current_letter,{})
+		old_dict = current_dict
 
-	for i in range(1,len(letters)):
-		letter = letters[i]
-		parent = letters[i-1]
-
-		vertex = Node(letter,parent)
-		trie.add(vertex)
+	print current_dict.keys()
+	print trie
 	return trie
 
+def print_trie(trie):
+	pass
 
-
-class Graph(object):
-
-	def __init__(self,root_node):
-		self.root = root_node
-		self.nodes = []
-
-	def add(self,node):
-		self.nodes.append(node)
-
-	def __repr__(self):
-		return "Graph:\n Root:%s \n Nodes: %s" %(self.root,self.nodes)
-class Node(object):
-
-	def __init__(self,letter,parent):
-		self.letter = letter
-		self.parent = parent # parent is another Node
-
-	def add_child(self,child):
-		self.children.append(child)
-
-	def __repr__(self):
-		return "Node: {} Parent: {}".format(self.letter,self.parent)
 
 if __name__ == '__main__':
-	word = raw_input('Please enter a word:')
-	trie = build_trie(word)
-	print trie
+	while True:
+		word = raw_input('Please enter a word:')
+		trie = build_trie(word)
 
 
