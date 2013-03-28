@@ -1,14 +1,9 @@
 import unittest
 import string
 import pdb
+import curses
 
 TEST_FILE = 'whitmanpoem.txt'
-
-def autocomplete(corpus_node,pre):
-	node_from_corp = corpus_node.find(to_nodes(prefix(pre)))
-	if node_from_corp:
-		return [str(node) for node in node_from_corp.endnodes()]
-	return node_from_corp
 
 class Node(object):
 	def __init__(self, value, children=None, isend=False):
@@ -61,10 +56,20 @@ class Node(object):
 	def __repr__(self):
 		return "Node({})".format(self.value)
 	def __str__(self):
-		return self.value
+		if not self.value:
+			return 'ROOT'
+		return self.value 
 
+	def pprint(self):
+		printed = '\n|{}'.format(self)
+		if self.isEnd:
+			printed += '||'
+		if self.children:
+			for child in self.children:
+				printed+=child.pprint().replace('\n','\n-')
+		return printed
 
-def triefy_file(file_name=TEST_FILE):
+def split_file(file_name=TEST_FILE):
 	with open(file_name,'r') as f:
 		words = []
 		for line in f:
@@ -79,12 +84,16 @@ def to_nodes(prefix_list):
 	nodes[-1].isEnd = True
 	return nodes
 
+def autocomplete(corpus_node,pre):
+	node_from_corp = corpus_node.find(to_nodes(prefix(pre)))
+	if node_from_corp:
+		return [str(node) for node in node_from_corp.endnodes()]
+	return node_from_corp
 
 if __name__ == '__main__':
 	root = Node(None)
-	for word in triefy_file():
+	for word in split_file():
 		root.insert(to_nodes(prefix(word)))
-	pdb.set_trace()
-	pre = raw_input('Please type something')
-	pdb.set_trace()
-	print autocomplete(root,pre)
+	print root.pprint()
+
+
