@@ -4,6 +4,7 @@ import pdb
 from keypress import use_letter,clean_up
 import os
 import sys
+import time
 
 TEST_FILE = '/Users/margoK/Dropbox/autocomplete/whitmanpoem.txt'
 SHAKESPEARE = []
@@ -90,9 +91,11 @@ class Node(object):
 			found_words =  [str(leaf) for leaf in node.endnodes()]
 			if pretty:
 				for word in found_words:
-					print '\t'+word
+					pretty_prefix = '\t\033[35m{}\033[0m'.format(pre)
+					print word.replace(pre,pretty_prefix,1)
 			return found_words
 		return node
+
 
 def split_file(file_names=SHAKESPEARE):
 	words = []
@@ -116,14 +119,30 @@ if __name__ == '__main__':
 			root.insert(nodify(word))
 		use_letter(root.autocomplete)
 	except KeyboardInterrupt:
-		print "Thanks for playing!"
-		sys.exit(1)
+		print "Unsetting autocomplete"
+		time.sleep(1)
+		sys.exit()
 	finally:
 		clean_up()
-		
+
 
 class TrieTests(unittest.TestCase):
 	pass
+
+# class IntegrationTests():
+# 	def basic_function(self):
+# 		try:
+# 			root = Node(None)
+# 			for word in split_file():
+# 				root.insert(nodify(word))
+# 			root.autocomplete()
+# 		except KeyboardInterrupt:
+# 			print "Autocomplete exiting!"
+# 			time.sleep(1)
+# 			sys.exit(1)
+# 		finally:
+# 			clean_up()
+
 
 
 
