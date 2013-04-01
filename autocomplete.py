@@ -1,8 +1,9 @@
 import unittest
 import string
 import pdb
-from keypress import use_letter
+from keypress import use_letter,clean_up
 import os
+import sys
 
 TEST_FILE = '/Users/margoK/Dropbox/autocomplete/whitmanpoem.txt'
 SHAKESPEARE = []
@@ -99,7 +100,6 @@ def split_file(file_names=SHAKESPEARE):
 		with open(fn,'r') as f:
 			for line in f:
 				words.extend([word.strip(string.punctuation).lower() for word in line.split()])
-		print "Here's the words"
 		return words
 
 def prefix(li):
@@ -110,14 +110,17 @@ def nodify(word):
 
 
 if __name__ == '__main__':
-	root = Node(None)
-	for word in split_file():
-		root.insert(nodify(word))
-	print root.pprint()
-
-	use_letter(root.autocomplete)
-
-
+	try:
+		root = Node(None)
+		for word in split_file():
+			root.insert(nodify(word))
+		use_letter(root.autocomplete)
+	except KeyboardInterrupt:
+		print "Thanks for playing!"
+		sys.exit(1)
+	finally:
+		clean_up()
+		
 
 class TrieTests(unittest.TestCase):
 	pass

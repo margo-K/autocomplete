@@ -23,5 +23,7 @@ def use_letter(fn,*args):
 					fn(c,*args)
 			except IOError: pass 
 	finally:
-		termios.tcsetattr(fd,termios.TCSAFLUSH,oldterm)
-		fcntl.fcntl(fd,fcntl.F_SETFL,oldflags)
+		clean_up()
+def clean_up():
+	termios.tcsetattr(fd,termios.TCSAFLUSH,oldterm)
+	fcntl.fcntl(fd,fcntl.F_SETFL,oldflags)
