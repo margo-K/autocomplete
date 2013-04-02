@@ -6,13 +6,15 @@ import os
 import sys
 import time
 
+CORPUS_DIRECTORY = "{}/corpus/".format(os.getcwd())
 TEST_FILE = '/Users/margoK/Dropbox/autocomplete/whitmanpoem.txt'
 SHAKESPEARE = []
-base = '/Users/margoK/Dropbox/autocomplete/shakespeare'
-sub_folders = ['/comedies/','/histories/','/tragedies/','/poetry/']
+base = CORPUS_DIRECTORY+'shakespeare/'
+sub_folders = ['comedies/','histories/','tragedies/','poetry/']
 for folder in sub_folders:
 	contents = [base+folder+work for work in os.listdir(base+folder)]
 	SHAKESPEARE.extend(contents)
+
 
 class Node(object):
 	def __init__(self, value, children=None, isEnd=False):
@@ -32,6 +34,18 @@ class Node(object):
 		return self.value 
 
 	def insert(self, nodes):
+		"""Insert item into a tree
+
+		*nodes = return value from nodify(word),
+		i.e. an increasing series of prefix nodes
+
+		EX: root = Node(None)
+			To insert "hi":
+
+				root.insert([Node('h'),Node('hi')])
+				=> root.children = [Node('h')]
+				=> Node('h').children = [Node('hi')]
+			"""
 		if nodes == []:
 			return self
 		node = nodes[0]
@@ -45,6 +59,15 @@ class Node(object):
 		return self
 
 	def find(self,prefix_nodes):
+		"""Return node in self with the value equal to that in the prefix_nodes
+
+		prefix_nodes = list of prefix nodes for a given term
+
+		EX: To find 'hel' in a corpus
+			corpus.find([Node('h'),Node('he'),Node('hel')])
+			=> node = Node('hel'), 
+				where node is in the corpus
+		"""
 		node = prefix_nodes[0]
 		child = self.get_child(node) ## return the node in tree
 		
@@ -70,13 +93,15 @@ class Node(object):
 		return node in root.endnodes()
 
 	def get_child(self,node):
-		"""Return the node in the tree that has the same value of the input node"""
+		"""Returns a child of self, if a child exists 
+			with node.value == child.value"""
 		for child in self.children:
 			if child == node:
 				return child
 		return None
 
 	def pprint(self):
+		"""Returns a string representation of a current graph"""
 		printed = '\n|{}'.format(self)
 		if self.isEnd:
 			printed += '||'
@@ -85,17 +110,17 @@ class Node(object):
 				printed+=child.pprint().replace('\n','\n-')
 		return printed
 
-	def autocomplete(self,pre,pretty=True):
-		node = self.find(nodify(pre))
-		if node:
-			found_words =  [str(leaf) for leaf in node.endnodes()]
-			if pretty:
-				for word in found_words:
-					pretty_prefix = '\t\033[35m{}\033[0m'.format(pre)
-					print word.replace(pre,pretty_prefix,1)
-			return found_words
-		return node
-
+def autocomplete(pre,corpus=None,pretty=True):
+	node = corpus.find(nodify(pre))
+	if node:
+		found_words =  [str(leaf) for leaf in node.endnodes()]
+		if pretty:
+			for word in found_words:
+				pretty_prefix = '\t\033[35m{}\033[0m'.format(pre)
+				print word.replace(pre,pretty_prefix,1)
+		return found_words
+	else:
+		return None
 
 def split_file(file_names=SHAKESPEARE):
 	words = []
@@ -111,13 +136,13 @@ def prefix(li):
 def nodify(word):
 	return map(Node,prefix(word))
 
-
 if __name__ == '__main__':
 	try:
 		root = Node(None)
 		for word in split_file():
 			root.insert(nodify(word))
-		use_letter(root.autocomplete)
+		print "Using corpus: Shakespeare"
+		use_letter(autocomplete,corpus=root)
 	except KeyboardInterrupt:
 		print "Unsetting autocomplete"
 		time.sleep(1)

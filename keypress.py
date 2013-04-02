@@ -10,7 +10,7 @@ termios.tcsetattr(fd,termios.TCSANOW,newattr)
 oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
 fcntl.fcntl(fd,fcntl.F_SETFL,oldflags | os.O_NONBLOCK)
 
-def use_letter(fn,*args):
+def use_letter(fn,**kwargs):
 	print "{} is now on".format(fn.__name__)
 	time.sleep(1)
 	c = ''
@@ -25,7 +25,7 @@ def use_letter(fn,*args):
 			else:
 				c+= key
 				print '\033[35m{}\033[0m---'.format(c)
-				fn(c,*args)
+				fn(c,**kwargs)
 
 def clean_up():
 	termios.tcsetattr(fd,termios.TCSAFLUSH,oldterm)
