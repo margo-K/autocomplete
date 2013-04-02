@@ -1,0 +1,25 @@
+#Piping Error
+#Status: Solved
+#Understood: False
+
+##Commit being Referenced
+autocomplete [real_trie %]\ $ git log
+commit 16526ab75159bf068cfdb11be9beaa666f5be1be
+Author: Margo Kulkarni <margo.r.kulkarni@gmail.com>
+Date:   Mon Apr 1 14:54:17 2013 -0400
+
+##Error Message
+
+close failed in file object destructor:
+sys.excepthook is missing
+lost sys.stderr
+
+##Fix
+commit a5de0a84d4dc2d1635cdfa5519520d5d26abc1a4
+Author: Margo Kulkarni <margo.r.kulkarni@gmail.com>
+Date:   Mon Apr 1 15:33:43 2013 -0400
+
+adds a cleanup function to be enacted whenever main is,
+not just when __main__ exits normally
+
+
