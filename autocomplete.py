@@ -1,5 +1,3 @@
-import unittest
-import string
 import pdb
 from keypress import use_letter,clean_up
 import os
@@ -20,7 +18,6 @@ def make_corpus(files,name=None,):
 		print "Adding {} to the canon".format(name)
 		CORPUS_DIRECTORY[name] = root
 		print "You can now access the work by doing CORPUS_DIRECTORY[{}]".format(name)
-		return name
 	return root
 
 def get_files(directory='./corpus/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
@@ -59,17 +56,11 @@ def prefix(li):
 def nodify(word):
 	return map(Node,prefix(word))
 
-	
-class TrieTests(unittest.TestCase):
-	pass
 
-class IntegrationTests():
-	def test_autocomplete(self):
+def test_autocomplete():
 		try:
-			entry = make_corpus(get_files(),name='Shakespeare')
-			print "Using corpus {}".format(entry)
-			corpus = CORPUS_DIRECTORY[entry]
-			print corpus.pprint()
+			corpus = make_corpus(get_files(),name='Shakespeare')
+			print "Using Shakespeare corpus"
 			use_letter(autocomplete,corpus=corpus)
 		except KeyboardInterrupt:
 			print "Unsetting autocomplete"
@@ -77,13 +68,20 @@ class IntegrationTests():
 			sys.exit()
 		finally:
 			clean_up()
+def test_corpusconstruction():
+	corpus = make_corpus(get_files(),name='Shakespeare')
+	print "Using Shakespeare corpus {}"
+	print corpus.pprint()
+
+# class IntegrationTests():
+# 	def __init__(self):
+# 		test_corpusconstruction()
+# 		test_autocomplete()
+
 
 if __name__ == '__main__':
-		entry = make_corpus(get_files(),name='Shakespeare')
-		print "Using corpus: {}".format(entry)
-		corpus = CORPUS_DIRECTORY[entry]
-		print corpus.pprint()
-
+	test_corpusconstruction()
+		
 
 
 
