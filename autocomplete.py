@@ -3,6 +3,7 @@ from keypress import use_letter,clean_up
 import os
 import sys
 import time
+import string
 from trie import Node
 
 
@@ -13,21 +14,22 @@ def make_corpus(files,name=None,):
 	for fl in files:
 		tokens = tokenize(fl)
 		for token in tokens:
-			root.insert(nodify(word))
+			root.insert(nodify(token))
 	if name:
 		print "Adding {} to the canon".format(name)
 		CORPUS_DIRECTORY[name] = root
 		print "You can now access the work by doing CORPUS_DIRECTORY[{}]".format(name)
 	return root
 
-def get_files(directory='./corpus/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
+def get_files(directory='corpus/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
 	files = []
 	for folder in subfolders:
 			# pdb.set_trace()
-			contents = [directory.lstrip(".")+folder+text for text in os.listdir(directory+folder)]
+			contents = [directory+folder+text for text in os.listdir(directory+folder)]
 			# pdb.set_trace()
 			files.extend(contents)
-	return files
+	name = directory.strip('corpus/')
+	return name,files
 
 def autocomplete(pre,corpus=None,pretty=True):
 	node = corpus.find(nodify(pre))
@@ -41,14 +43,12 @@ def autocomplete(pre,corpus=None,pretty=True):
 	else:
 		return None
 
-def tokenize(file_names):
+def tokenize(file_name):
 	words = []
-	for fn in file_names:
-		# pdb.set_trace()
-		with open(fn,'r') as f:
-			for line in f:
-				words.extend([word.strip(string.punctuation).lower() for word in line.split()])
-		return words
+	with open(file_name,'r') as f:
+		for line in f:
+			words.extend([word.strip(string.punctuation).lower() for word in line.split()])
+	return words
 
 def prefix(li):
 	return [li[:i] for i in range(1,len(li)+1)]
@@ -69,8 +69,10 @@ def test_autocomplete():
 		finally:
 			clean_up()
 def test_corpusconstruction():
-	corpus = make_corpus(get_files(),name='Shakespeare')
-	print "Using Shakespeare corpus {}"
+	name, files = get_files()
+	corpus = make_corpus(files,name=name)
+	print corpus
+	print "Using {} as corpus".format(name)
 	print corpus.pprint()
 
 # class IntegrationTests():
