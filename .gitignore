@@ -1,2 +1,6 @@
 *.py[cod]
 *terminal_control.py
+*tests/
+*.DS_Store
+*benchmarks/
+*bugs/bg6.md
