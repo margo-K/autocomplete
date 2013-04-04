@@ -2,5 +2,5 @@
 *terminal_control.py
 *tests/
 *.DS_Store
-*benchmarks/
+*benchmarks/test_file.txt
 *bugs/bg6.md

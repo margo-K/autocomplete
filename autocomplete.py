@@ -45,7 +45,9 @@ def autocomplete(pre,corpus=None,pretty=True):
 
 def tokenize(file_name):
 	words = []
+	# pdb.set_trace()
 	with open(file_name,'r') as f:
+		# pdb.set_trace()
 		for line in f:
 			if line:
 				words.extend([token(st) for st in line.split()])
@@ -74,7 +76,7 @@ def wordcount(file_name):
 				wc+=len(line.split())
 	return lc,wc
 
-def word_frequency(file_name,tokenfn):
+def word_frequency(file_name,tokenfn=token):
 	words = {}
 	with open(file_name,'r') as f:
 		for line in f:
@@ -84,8 +86,8 @@ def word_frequency(file_name,tokenfn):
 					entry = words.setdefault(word,0)
 					words[word]=entry+1 # increments the count for each word found
 
-	unique_words = words.keys()
-	return words, unique_words
+	uniquecount= len(words.keys())
+	return words, uniquecount
 
 
 def test_autocomplete():
@@ -115,7 +117,7 @@ class Corpus(Node):
 	pass
 
 class CorpusTests(unittest.TestCase):
-	
+
 	def test_wordcount(self):
 		"""Checks wordcount and linecount against bash versions"""
 		file_name = 'corpus/whitmanpoem.txt'
