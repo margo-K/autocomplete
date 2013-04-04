@@ -4,12 +4,14 @@ import os
 import sys
 import time
 import string
+import unittest
 from trie import Node
+import pprint
 
 
 CORPUS_DIRECTORY = {}
 
-def make_corpus(files,name=None,):
+def make_corpus(files,name=None):
 	root = Node(None)
 	for fl in files:
 		tokens = tokenize(fl)
@@ -24,11 +26,9 @@ def make_corpus(files,name=None,):
 def get_files(directory='corpus/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
 	files = []
 	for folder in subfolders:
-			# pdb.set_trace()
 			contents = [directory+folder+text for text in os.listdir(directory+folder)]
-			# pdb.set_trace()
 			files.extend(contents)
-	name = directory.strip('corpus/')
+	name = directory[len('corpus/'):]
 	return name,files
 
 def autocomplete(pre,corpus=None,pretty=True):
@@ -47,14 +47,45 @@ def tokenize(file_name):
 	words = []
 	with open(file_name,'r') as f:
 		for line in f:
-			words.extend([word.strip(string.punctuation).lower() for word in line.split()])
+			if line:
+				words.extend([token(st) for st in line.split()])
 	return words
+
+def token(st):
+	"""Returns tokenized form of the input st"""
+	return st.strip(string.punctuation).lower()
 
 def prefix(li):
 	return [li[:i] for i in range(1,len(li)+1)]
 
 def nodify(word):
 	return map(Node,prefix(word))
+
+def wordcount(file_name):
+	"""Return wordcount and non-empty line-count of the file
+
+		*Words are any strings delimited by spaces"""
+	wc = 0
+	lc = 0
+	with open(file_name,'r') as f:
+		for line in f:
+			if line:
+				lc+=1
+				wc+=len(line.split())
+	return lc,wc
+
+def word_frequency(file_name,tokenfn):
+	words = {}
+	with open(file_name,'r') as f:
+		for line in f:
+			if line:
+				c_words = [tokenfn(st) for st in line.split()]
+				for word in c_words:
+					entry = words.setdefault(word,0)
+					words[word]=entry+1 # increments the count for each word found
+
+	unique_words = words.keys()
+	return words, unique_words
 
 
 def test_autocomplete():
@@ -68,6 +99,7 @@ def test_autocomplete():
 			sys.exit()
 		finally:
 			clean_up()
+
 def test_corpusconstruction():
 	name, files = get_files()
 	corpus = make_corpus(files,name=name)
@@ -75,14 +107,51 @@ def test_corpusconstruction():
 	print "Using {} as corpus".format(name)
 	print corpus.pprint()
 
+def test_wordcount(f):
+	print wordcount(f)
+
+
+class Corpus(Node):
+	pass
+
+class CorpusTests(unittest.TestCase):
+	
+	def test_wordcount(self):
+		"""Checks wordcount and linecount against bash versions"""
+		file_name = 'corpus/whitmanpoem.txt'
+		pass
+
+	def test_word_frequency(self):
+		"""Verifies that wordcount and wordfrequency are consistent"""
+		file_name = 'corpus/whitmanpoem.txt'
+		tokenfn = token
+
+		lc, wc = wordcount(file_name)
+		words, unique = word_frequency(file_name,tokenfn)
+
+		self.assertEqual(wc, reduce(lambda x, y: x+y, words.itervalues()))
+
+	def test_uniquevalues(self):
+		"""Verify that the nodes in the corpus and unique words are the same"""
+		file_name = 'corpus/whitmanpoem.txt'
+		pass
+		# make_corpus(file_name)
+
+
+
+
+
+
 # class IntegrationTests():
 # 	def __init__(self):
 # 		test_corpusconstruction()
 # 		test_autocomplete()
 
 
+
 if __name__ == '__main__':
-	test_corpusconstruction()
+	unittest.main()
+
 		
 
 
