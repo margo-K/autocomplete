@@ -1,5 +1,5 @@
 import pdb
-from keypress import use_letter,clean_up
+from keypress import setup, use_letter,clean_up
 import os
 import sys
 import time
@@ -14,6 +14,7 @@ CORPUS_DIRECTORY = {}
 def make_corpus(files,name=None):
 	root = Node(None)
 	for fl in files:
+		# pdb.set_trace()
 		tokens = tokenize(fl)
 		for token in tokens:
 			root.insert(nodify(token))
@@ -28,7 +29,8 @@ def get_files(directory='corpus/shakespeare/',subfolders=['comedies/','histories
 	for folder in subfolders:
 			contents = [directory+folder+text for text in os.listdir(directory+folder)]
 			files.extend(contents)
-	name = directory[len('corpus/'):]
+	#pdb.set_trace()
+	name = directory[len('corpus/'):].strip('/')
 	return name,files
 
 def autocomplete(pre,corpus=None,pretty=True):
@@ -91,16 +93,19 @@ def word_frequency(file_name,tokenfn=token):
 
 
 def test_autocomplete():
-		try:
-			corpus = make_corpus(get_files(),name='Shakespeare')
-			print "Using Shakespeare corpus"
-			use_letter(autocomplete,corpus=corpus)
-		except KeyboardInterrupt:
-			print "Unsetting autocomplete"
-			time.sleep(1)
-			sys.exit()
-		finally:
-			clean_up()
+	fd, oldterm, oldflags = setup()
+	try:
+		name, files = get_files()
+		corpus = make_corpus(files,name=name)
+		print "Using Shakespeare corpus"
+		use_letter(autocomplete,corpus=corpus)
+	except KeyboardInterrupt:
+		print "Unsetting autocomplete"
+		time.sleep(1)
+		# sys.exit()
+	finally:
+		clean_up(fd,oldterm,oldflags)
+		sys.exit()
 
 def test_corpusconstruction():
 	name, files = get_files()
@@ -152,8 +157,7 @@ class CorpusTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
-
+	test_autocomplete()
 		
 
 
