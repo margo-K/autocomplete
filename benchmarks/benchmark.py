@@ -28,86 +28,78 @@ import time
 sys.path.insert(0,'/Users/margoK/Dropbox/autocomplete/')
 sys.path.insert(1,'/Users/margoK/Dropbox/autocomplete/corpus/')
 from autocomplete import wordcount, word_frequency, make_corpus,nodify,get_files
-from trie import Node
 
+log = {}
 
-# CORPUS_DIRECTORY = "shakespeare/"
-# SHAKESPEARE = []
-# sub_folders = ['comedies/','histories/','tragedies/','poetry/']
-# for folder in sub_folders:
-# 	contents = [CORPUS_DIRECTORY+folder+work for work in os.listdir(CORPUS_DIRECTORY+folder)]
-# 	SHAKESPEARE.extend(contents)
-
-def make_file(file_names):
-	with open('test_file.txt','a') as t:
+def make_file(file_names,newfile):
+	with open(newfile,'a') as t:
 		for fn in file_names:
-			# pdb.set_trace()
 			with open(fn) as f:
-				# pdb.set_trace()
 				lines = f.readlines()
-				# pdb.set_trace()
 				for line in lines:
 					t.write(line)
-	return t.name
+
+def logtime(fn):
+	def wrapped(*args):
+		start = time.time()
+		output = fn(*args)
+		end = time.time()
+		total = end-start
+		log[fn.__name__] = total
+		print "{} has been logged".format(fn.__name__)
+		return output
+	return wrapped
+
+	
+def report(file_name,word,*args):
+	for f in file_name:
+		lc, wc = wordcount(f)
+		frequency,unique = word_frequency(f)
+
+		print "\n----------Report----------\nFile Searched: {}\nFrequency of term searched: {} \nTotal words: {}\nTotal lines: {}\nUnique Words: {}\n".format(file_name,frequency[word],wc,lc,unique)
+
+	for arg in args:
+		print "\n {}: {}".format(arg,log[arg])
 
 
+@logtime
 def linear_search(file_name,word):
 	"""Traverse a file, performing fn on each line"""
-	start = time.time()
-	with open(file_name,'r') as f:
-		for line in f:
-			if word in line:
-				print "Found: {}".format(word)
-				break
-	end = time.time()
-	totaltime = end-start
-	print "\n{} took {} time to search".format('linear search',totaltime)
-	return totaltime
+	for fl in file_name:
+		with open(fl,'r') as f:
+			for line in f:
+				if word in line:
+					print "Found: {}".format(word)
+					break
+
+@logtime
+def trie_build(file_names):
+	return make_corpus(file_names)
 			
-
-def trie_search(file_name,word):
-	start = time.time()
-	corpus = make_corpus([file_name])
-	post_build = time.time()
-	build_time = post_build - start
+@logtime
+def trie_search(corpus,word):
 	corpus.find(nodify(word))
-	end = time.time()
-	totaltime = end-start
-	print "\n{} took {} time to build the tree".format('Prefix-tree', build_time)
-	print "\n{} took {} time to search".format('Prefix tree',totaltime-build_time)
-	print "\n{} took {} time total".format('Prefix tree',totaltime)
-
-
-	return totaltime
 
 def benchmark(file_name,word):
-	lc, wc = wordcount(file_name)
-	frequency,unique = word_frequency(file_name)
+	corpus=trie_build(file_name)
+	linear_search(file_name,word)
+	trie_search(corpus,word)
 
-	print "\n----------Report----------\nFile Searched: {}\nFrequency of term searched: {} \nTotal words: {}\nTotal lines: {}\nUnique Words: {}\n".format(file_name,frequency[word],wc,lc,unique)
+	ttime = log['trie_build'] + log['trie_search']
+	lstime = log['linear_search']
 
-	lstime = linear_search(file_name,word)
-	ttime = trie_search(file_name,word)
-
-	winning_time = min(lstime,ttime)
-	print "\nWinning Total Time: {}".format(winning_time)
+	report(file_name,word,'trie_build','trie_search','linear_search')
+	winning_method, winning_time = min([('linear', lstime), ('trie', ttime)],key = lambda x: x[1])
+	print "\nWinning Method: {}, Winning Time: {}".format(winning_method, winning_time)
 
 if __name__ == '__main__':
 	f1 = '/Users/margoK/Dropbox/autocomplete/corpus/whitmanpoem.txt'
-	benchmark(f1,'dead')
-	f2 = make_file(get_files(directory='/Users/margoK/Dropbox/autocomplete/corpus/shakespeare/'))
-	benchmark(f2,'dream')
-
-	# print "Linear results: {}".format(linear_search(f,"although"))
-	# print "Trie results: {}".format(trie_search(f,"although"))
-
-
+	benchmark([f1],'dead')
+	name, files = get_files(directory='/Users/margoK/Dropbox/autocomplete/corpus/shakespeare/')
+	name, files = get_files(directory='corpus/shakespeare/')
+	f2 = name+'.txt'
+	make_file(files,f2)
+	benchmark([f2],'dream')
 
 
-# class Benchmark:
-# 	def __init__(file_name):
-# 		self.file = file_name
-# 		self.lc, self.wc = wordcount(file_name)
-# 		self.frequency,self.unique = get_frequency(file_name)
 
-# 	def 
