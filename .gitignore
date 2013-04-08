@@ -4,3 +4,4 @@
 *.DS_Store
 *benchmarks/test_file.txt
 *bugs/bg6.md
+*notes.py
