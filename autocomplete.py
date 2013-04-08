@@ -11,25 +11,11 @@ import pprint
 
 CORPUS_DIRECTORY = {}
 
-def make_corpus(files,name=None):
-	root = Node(None)
-	for fl in files:
-		# pdb.set_trace()
-		tokens = tokenize(fl)
-		for token in tokens:
-			root.insert(nodify(token))
-	if name:
-		print "Adding {} to the canon".format(name)
-		CORPUS_DIRECTORY[name] = root
-		print "You can now access the work by doing CORPUS_DIRECTORY[{}]".format(name)
-	return root
-
 def get_files(directory='corpus/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
 	files = []
 	for folder in subfolders:
 			contents = [directory+folder+text for text in os.listdir(directory+folder)]
 			files.extend(contents)
-	#pdb.set_trace()
 	name = directory[len('corpus/'):].strip('/')
 	return name,files
 
@@ -65,34 +51,56 @@ def prefix(li):
 def nodify(word):
 	return map(Node,prefix(word))
 
-def wordcount(file_name):
-	"""Return wordcount and non-empty line-count of the file
+def make_corpus(file_name,name=None):
+	if name in CORPUS_DIRECTORY:
+		return CORPUS_DIRECTORY[name]
+	root = Node(None)
 
-		*Words are any strings delimited by spaces"""
-	wc = 0
-	lc = 0
-	with open(file_name,'r') as f:
-		for line in f:
-			if line:
-				lc+=1
-				wc+=len(line.split())
-	return lc,wc
+	tokens = tokenize(file_name)
+	for token in tokens:
+		root.insert(nodify(token))
+	if name:
+		print "Adding {} to the canon".format(name)
+		CORPUS_DIRECTORY[name] = root
+		print "You can now access the work by doing CORPUS_DIRECTORY[{}]".format(name)
+	return root
 
-def word_frequency(file_name,tokenfn=token):
-	words = {}
-	with open(file_name,'r') as f:
-		for line in f:
-			if line:
-				c_words = [tokenfn(st) for st in line.split()]
-				for word in c_words:
-					entry = words.setdefault(word,0)
-					words[word]=entry+1 # increments the count for each word found
+class Corpus(Node):
+	def __init__(self,source):
+		self.value = None
+		self.source = source
+		# self.corpus = make_corpus(source) # not currently implemented
 
-	uniquecount= len(words.keys())
-	return words, uniquecount
+	@property
+	def wordcount(self):
+		"""Return wordcount and non-empty line-count of the file"""
+		wc = 0
+		for line in self.source:
+			wc+=len(line.split())
+		return wc
 
+	@property
+	def lines(self):
+		lc = 0
+		for line in self.source:
+			lc+=1
+		return lc
 
-def test_autocomplete():
+	@property
+	def frequencies(self,tokenfn=lambda st: st.strip(string.punctuation).lower()):
+		words = {}
+		for line in self.source:
+			for word in [tokenfn(st) for st in line.split()]:
+				entry = words.setdefault(word,0)
+				words[word]=entry+1 # increments the count for each word found
+		return words
+
+	@property
+	def unique(self):
+		return len(self.frequencies)
+
+if __name__ == '__main__':
+
 	fd, oldterm, oldflags = setup()
 	try:
 		name, files = get_files()
@@ -102,62 +110,9 @@ def test_autocomplete():
 	except KeyboardInterrupt:
 		print "Unsetting autocomplete"
 		time.sleep(1)
-		# sys.exit()
 	finally:
 		clean_up(fd,oldterm,oldflags)
 		sys.exit()
-
-def test_corpusconstruction():
-	name, files = get_files()
-	corpus = make_corpus(files,name=name)
-	print corpus
-	print "Using {} as corpus".format(name)
-	print corpus.pprint()
-
-def test_wordcount(f):
-	print wordcount(f)
-
-
-class Corpus(Node):
-	pass
-
-class CorpusTests(unittest.TestCase):
-
-	def test_wordcount(self):
-		"""Checks wordcount and linecount against bash versions"""
-		file_name = 'corpus/whitmanpoem.txt'
-		pass
-
-	def test_word_frequency(self):
-		"""Verifies that wordcount and wordfrequency are consistent"""
-		file_name = 'corpus/whitmanpoem.txt'
-		tokenfn = token
-
-		lc, wc = wordcount(file_name)
-		words, unique = word_frequency(file_name,tokenfn)
-
-		self.assertEqual(wc, reduce(lambda x, y: x+y, words.itervalues()))
-
-	def test_uniquevalues(self):
-		"""Verify that the nodes in the corpus and unique words are the same"""
-		file_name = 'corpus/whitmanpoem.txt'
-		pass
-		# make_corpus(file_name)
-
-
-
-
-
-
-# class IntegrationTests():
-# 	def __init__(self):
-# 		test_corpusconstruction()
-# 		test_autocomplete()
-
-
-
-if __name__ == '__main__':
-	test_autocomplete()
 		
 
 
