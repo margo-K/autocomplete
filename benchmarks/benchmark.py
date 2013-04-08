@@ -15,7 +15,7 @@ VARIABLES:
 *number of unique words (measured by nodes in the prefix trie)
 
 HYPOTHESIS:
-*Linear search = BigO(1) (i.e. linear in word count)
+*Linear search = BigO(n) (i.e. linear in word count)
 *Trie search = 
 
 """
@@ -24,6 +24,7 @@ import os.path
 import sys
 import pdb
 import time
+import string
 
 sys.path.insert(0,'/Users/margoK/Dropbox/autocomplete/')
 sys.path.insert(1,'/Users/margoK/Dropbox/autocomplete/corpus/')
@@ -49,15 +50,26 @@ def logtime(fn):
 		print "{} has been logged".format(fn.__name__)
 		return output
 	return wrapped
-
 	
 def report(file_name,word,*args):
-	for f in file_name:
-		lc, wc = wordcount(f)
-		frequency,unique = word_frequency(f)
+	lc, wc = wordcount(f)
+	freq,unique = word_frequency(f)
 
-		print "\n----------Report----------\nFile Searched: {}\nFrequency of term searched: {} \nTotal words: {}\nTotal lines: {}\nUnique Words: {}\n".format(file_name,frequency[word],wc,lc,unique)
+	report = string.Template("""\
+				Report
+	----------------------------------
+	File Searched: $filename
+	Frequency of term searched: $frequency
+	Total words: $wordcount
+	Total lines: $linecount
+	Unique words: $unique
+	""")
 
+	print report.substitute({'filename':file_name,
+							'frequency': freq[word],
+							'wordcount': wc,
+							'linecount': lc,
+							'unique': unique})
 	for arg in args:
 		print "\n {}: {}".format(arg,log[arg])
 
@@ -65,16 +77,15 @@ def report(file_name,word,*args):
 @logtime
 def linear_search(file_name,word):
 	"""Traverse a file, performing fn on each line"""
-	for fl in file_name:
-		with open(fl,'r') as f:
-			for line in f:
-				if word in line:
-					print "Found: {}".format(word)
-					break
+	with open(fl,'r') as f:
+		for line in f:
+			if word in line:
+				print "Found: {}".format(word)
+				break
 
 @logtime
-def trie_build(file_names):
-	return make_corpus(file_names)
+def trie_build(file_name):
+	return make_corpus(file_name)
 			
 @logtime
 def trie_search(corpus,word):
