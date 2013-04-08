@@ -45,7 +45,7 @@ def timed(fn,*args):
 	end_real = time.time()
 	return end_real - start_real
 
-def report(testfns,log,trial=0):
+def report(testfns,log,trial=-1):#defaults to most recent trial
 	file_name = log[0][0][0]
 	print "File_name {} ".format(file_name)
 	word = log[0][0][1]
@@ -69,8 +69,13 @@ def report(testfns,log,trial=0):
 							'linecount': lc,
 							'unique': unique})
 	count = len(testfns)
+	t = log[trial][1]
 	for i in xrange(len(testfns)):
-		print "\t{fn_name}: {time}".format(fn_name = testfns[i].__name__,time=log[0][1][i])
+		print "\t{fn_name}: {time}".format(fn_name = testfns[i].__name__,time=t[i])
+
+	
+	winner = min(t)
+	print "\nWinning Method: {}, Winning Time: {}".format(fns[t.index(winner)].__name__, winner)
 
 def stats(log,trials=1):
 	pass
@@ -102,9 +107,9 @@ def benchmark(inputs,fns):
 	t = [timed(fns[i],*inputs) for i in xrange(count)]
 
 	log.append([inputs,t])
-	winner = min(t)
 	report(fns,log)
-	print "\nWinning Method: {}, Winning Time: {}".format(fns[t.index(winner)].__name__, winner)
+
+
 
 if __name__ == '__main__':
 	f1 = '/Users/margoK/Dropbox/autocomplete/corpus/whitmanpoem.txt'
@@ -115,5 +120,6 @@ if __name__ == '__main__':
 	# f2 = name+'.txt'
 	# make_file(files,f2)
 	# benchmark((f2,'dream'),test_funcs)
+
 
 
