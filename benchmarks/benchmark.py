@@ -46,9 +46,12 @@ def timed(fn,*args):
 	return end_real - start_real
 
 def report(testfns,log,trial=-1):#defaults to most recent trial
-	file_name = log[0][0][0]
-	print "File_name {} ".format(file_name)
-	word = log[0][0][1]
+	inputs = log[trial][0]
+	t =log[trial][1]
+	winner = min(t)
+
+	file_name = inputs[0]
+	search_term = inputs[1]
 	lc, wc = wordcount(file_name)
 	freq,unique = word_frequency(file_name)
 
@@ -61,21 +64,24 @@ def report(testfns,log,trial=-1):#defaults to most recent trial
 	Total words: $wordcount
 	Total lines: $linecount
 	Unique words: $unique
+
+	Winning method: $winner
+	Winning time: $wintime
+
+
 	""")
 
 	print report.substitute({'filename':file_name,
-							'frequency': freq[word],
+							'frequency': freq[search_term],
 							'wordcount': wc,
 							'linecount': lc,
-							'unique': unique})
-	count = len(testfns)
-	t = log[trial][1]
+							'unique': unique,
+							'winner': testfns[t.index(winner)].__name__
+							'wintime': winner})
+
 	for i in xrange(len(testfns)):
 		print "\t{fn_name}: {time}".format(fn_name = testfns[i].__name__,time=t[i])
-
 	
-	winner = min(t)
-	print "\nWinning Method: {}, Winning Time: {}".format(fns[t.index(winner)].__name__, winner)
 
 def stats(log,trials=1):
 	pass
@@ -103,8 +109,7 @@ def try_trie(file_name,word):
 
 def benchmark(inputs,fns):
 	log = []
-	count = len(fns) 
-	t = [timed(fns[i],*inputs) for i in xrange(count)]
+	t = [timed(fns[i],*inputs) for i in xrange(len(fns))]
 
 	log.append([inputs,t])
 	report(fns,log)
