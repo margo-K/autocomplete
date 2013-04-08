@@ -37,4 +37,4 @@ def use_letter(fn,**kwargs):
 				c+= key
 				print '\033[35m{}\033[0m---'.format(c)
 				fn(c,**kwargs)
-	clean_up(file_no,oldterm)
+	# clean_up(file_no,oldterm)
