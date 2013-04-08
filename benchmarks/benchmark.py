@@ -30,7 +30,7 @@ sys.path.insert(0,'/Users/margoK/Dropbox/autocomplete/')
 sys.path.insert(1,'/Users/margoK/Dropbox/autocomplete/corpus/')
 from autocomplete import wordcount, word_frequency, make_corpus,nodify,get_files
 
-log = {}
+
 
 def make_file(file_names,newfile):
 	with open(newfile,'a') as t:
@@ -39,23 +39,21 @@ def make_file(file_names,newfile):
 				lines = f.readlines()
 				for line in lines:
 					t.write(line)
+def timed(fn,*args):
+	start_real = time.time()
+	fn(*args)
+	end_real = time.time()
+	return end_real - start_real
 
-def logtime(fn):
-	def wrapped(*args):
-		start = time.time()
-		output = fn(*args)
-		end = time.time()
-		total = end-start
-		log[fn.__name__] = total
-		print "{} has been logged".format(fn.__name__)
-		return output
-	return wrapped
-	
-def report(file_name,word,*args):
-	lc, wc = wordcount(f)
-	freq,unique = word_frequency(f)
+def report(testfns,log,trial=0):
+	file_name = log[0][0][0]
+	print "File_name {} ".format(file_name)
+	word = log[0][0][1]
+	lc, wc = wordcount(file_name)
+	freq,unique = word_frequency(file_name)
 
 	report = string.Template("""\
+	
 				Report
 	----------------------------------
 	File Searched: $filename
@@ -70,47 +68,52 @@ def report(file_name,word,*args):
 							'wordcount': wc,
 							'linecount': lc,
 							'unique': unique})
-	for arg in args:
-		print "\n {}: {}".format(arg,log[arg])
+	count = len(testfns)
+	for i in xrange(len(testfns)):
+		print "\t{fn_name}: {time}".format(fn_name = testfns[i].__name__,time=log[0][1][i])
+
+def stats(log,trials=1):
+	pass
+	# return max_time,min_time,avg_time
 
 
-@logtime
+
 def linear_search(file_name,word):
 	"""Traverse a file, performing fn on each line"""
-	with open(fl,'r') as f:
+	with open(file_name,'r') as f:
 		for line in f:
 			if word in line:
 				print "Found: {}".format(word)
 				break
 
-@logtime
 def trie_build(file_name):
 	return make_corpus(file_name)
 			
-@logtime
 def trie_search(corpus,word):
 	corpus.find(nodify(word))
 
-def benchmark(file_name,word):
-	corpus=trie_build(file_name)
-	linear_search(file_name,word)
+def try_trie(file_name,word):
+	corpus = trie_build(file_name)
 	trie_search(corpus,word)
 
-	ttime = log['trie_build'] + log['trie_search']
-	lstime = log['linear_search']
+def benchmark(inputs,fns):
+	log = []
+	count = len(fns) 
+	t = [timed(fns[i],*inputs) for i in xrange(count)]
 
-	report(file_name,word,'trie_build','trie_search','linear_search')
-	winning_method, winning_time = min([('linear', lstime), ('trie', ttime)],key = lambda x: x[1])
-	print "\nWinning Method: {}, Winning Time: {}".format(winning_method, winning_time)
+	log.append([inputs,t])
+	winner = min(t)
+	report(fns,log)
+	print "\nWinning Method: {}, Winning Time: {}".format(fns[t.index(winner)].__name__, winner)
 
 if __name__ == '__main__':
 	f1 = '/Users/margoK/Dropbox/autocomplete/corpus/whitmanpoem.txt'
-	benchmark([f1],'dead')
-	name, files = get_files(directory='/Users/margoK/Dropbox/autocomplete/corpus/shakespeare/')
-	name, files = get_files(directory='corpus/shakespeare/')
-	f2 = name+'.txt'
-	make_file(files,f2)
-	benchmark([f2],'dream')
-
+	test_funcs = (linear_search,try_trie)
+	benchmark((f1,'dead'),test_funcs)
+	# name, files = get_files(directory='/Users/margoK/Dropbox/autocomplete/corpus/shakespeare/')
+	# name, files = get_files(directory='corpus/shakespeare/')
+	# f2 = name+'.txt'
+	# make_file(files,f2)
+	# benchmark((f2,'dream'),test_funcs)
 
 
