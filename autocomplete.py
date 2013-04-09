@@ -32,14 +32,9 @@ def autocomplete(pre,corpus=None,pretty=True):
 		return None
 
 def tokenize(file_name):
-	words = []
-	# pdb.set_trace()
-	with open(file_name,'r') as f:
-		# pdb.set_trace()
-		for line in f:
-			if line:
-				words.extend([token(st) for st in line.split()])
-	return words
+	f = open(file_name)
+	words = (word for line in f for word in line.split())
+	return (token(word) for word in words)
 
 def token(st):
 	"""Returns tokenized form of the input st"""
