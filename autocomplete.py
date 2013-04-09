@@ -8,32 +8,24 @@ import unittest
 from trie import Node
 import pprint
 
-
-CORPUS_DIRECTORY = {}
-
 def get_files(directory='corpus/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
-	files = []
-	for folder in subfolders:
-			contents = [directory+folder+text for text in os.listdir(directory+folder)]
-			files.extend(contents)
-	name = directory[len('corpus/'):].strip('/')
-	return name,files
+	files = (directory+folder+text for folder in subfolders for text in os.listdir(directory+folder))
+	return files
 
-def autocomplete(pre,corpus=None,pretty=True):
+def autocomplete(prefix,corpus=None,pretty=True):
+	colorprefix = '\t\033[35m{prefix}\033[0m'
 	node = corpus.find(nodify(pre))
 	if node:
 		found_words =  [str(leaf) for leaf in node.endnodes()]
 		if pretty:
 			for word in found_words:
-				pretty_prefix = '\t\033[35m{}\033[0m'.format(pre)
-				print word.replace(pre,pretty_prefix,1)
+				print word.replace(prefix,color.prefix.format(prefix),1)
 		return found_words
 	else:
 		return None
 
-def tokenize(file_name):
-	f = open(file_name)
-	words = (word for line in f for word in line.split())
+def tokenize(open_file):
+	words = (word for line in open_file for word in line.split())
 	return (token(word) for word in words)
 
 def token(st):
@@ -51,8 +43,7 @@ def make_corpus(file_name,name=None):
 		return CORPUS_DIRECTORY[name]
 	root = Node(None)
 
-	tokens = tokenize(file_name)
-	for token in tokens:
+	for token in tokenize(file_name): # this could be a generator
 		root.insert(nodify(token))
 	if name:
 		print "Adding {} to the canon".format(name)
@@ -60,31 +51,69 @@ def make_corpus(file_name,name=None):
 		print "You can now access the work by doing CORPUS_DIRECTORY[{}]".format(name)
 	return root
 
-class Corpus(Node):
+def wordcount(iterator):
+	wc = 0
+	for line in iterator:
+		wc+=len(line.split())
+	return wc
+
+def linecount(iterator):
+	lc = 0
+	for line in iterator:
+		lc+=1
+	return lc
+
+def frequencies(iterator,tokenfn=token):
+	words = {}
+	for line in iterator:
+		for word in [tokenfn(st) for st in line.split()]:
+			entry = words.setdefault(word,0)
+			words[word]=entry+1 # increments the count for each word found
+	return words
+
+
+
+class Corpus(Node):	
+
+	# directory = {}
+
 	def __init__(self,source):
 		self.value = None
+		self.children = []
 		self.source = source
-		# self.corpus = make_corpus(source) # not currently implemented
+		self.isEnd = False
+		for token in tokenize(self.text):
+			nodes = nodify(token)
+
+			self.insert(nodes)
+	@property
+	def text(self):
+		"""Return a generator that allows for 'for line in text'"""
+		if os.path.exists(self.source): # checks if the file can be read as a file
+			return open(self.source)
+		return (line for line in self.source.splitlines())
 
 	@property
 	def wordcount(self):
 		"""Return wordcount and non-empty line-count of the file"""
 		wc = 0
-		for line in self.source:
+		#pdb.set_trace()
+		for line in self.text:
+			#pdb.set_trace()
 			wc+=len(line.split())
 		return wc
 
 	@property
 	def lines(self):
 		lc = 0
-		for line in self.source:
+		for line in self.text:
 			lc+=1
 		return lc
 
 	@property
 	def frequencies(self,tokenfn=lambda st: st.strip(string.punctuation).lower()):
 		words = {}
-		for line in self.source:
+		for line in self.text:
 			for word in [tokenfn(st) for st in line.split()]:
 				entry = words.setdefault(word,0)
 				words[word]=entry+1 # increments the count for each word found
@@ -95,20 +124,13 @@ class Corpus(Node):
 		return len(self.frequencies)
 
 if __name__ == '__main__':
+	f1 = '/Users/margoK/Dropbox/autocomplete/shakespeare.txt'
+	f2 = '/Users/margoK/Dropbox/autocomplete/corpus/whitmanpoem.txt'
+	corp1 = Corpus(f2)
+	corp2 = Corpus(f1)
+	print corp.pprint()
+	print corp.wordcount,corp.lines,corp.frequencies
 
-	fd, oldterm, oldflags = setup()
-	try:
-		name, files = get_files()
-		corpus = make_corpus(files,name=name)
-		print "Using Shakespeare corpus"
-		use_letter(autocomplete,corpus=corpus)
-	except KeyboardInterrupt:
-		print "Unsetting autocomplete"
-		time.sleep(1)
-	finally:
-		clean_up(fd,oldterm,oldflags)
-		sys.exit()
-		
 
 
 

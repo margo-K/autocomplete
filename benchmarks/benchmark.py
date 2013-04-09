@@ -28,9 +28,7 @@ import string
 
 sys.path.insert(0,'/Users/margoK/Dropbox/autocomplete/')
 sys.path.insert(1,'/Users/margoK/Dropbox/autocomplete/corpus/')
-from autocomplete import wordcount, word_frequency, make_corpus,nodify,get_files
-
-
+from autocomplete import Corpus,nodify,get_files,wordcount,linecount,frequencies
 
 def make_file(file_names,newfile):
 	with open(newfile,'a') as t:
@@ -52,8 +50,9 @@ def report(testfns,log,trial=-1):#defaults to most recent trial
 
 	file_name = inputs[0]
 	search_term = inputs[1]
-	lc, wc = wordcount(file_name)
-	freq,unique = word_frequency(file_name)
+	lc, wc = linecount(open(file_name)),wordcount(open(file_name))
+	freq= frequencies(open(file_name))
+	unique=len(freq)
 
 	report = string.Template("""\
 	
@@ -76,7 +75,7 @@ def report(testfns,log,trial=-1):#defaults to most recent trial
 							'wordcount': wc,
 							'linecount': lc,
 							'unique': unique,
-							'winner': testfns[t.index(winner)].__name__
+							'winner': testfns[t.index(winner)].__name__,
 							'wintime': winner})
 
 	for i in xrange(len(testfns)):
@@ -98,7 +97,7 @@ def linear_search(file_name,word):
 				break
 
 def trie_build(file_name):
-	return make_corpus(file_name)
+	return Corpus(file_name)
 			
 def trie_search(corpus,word):
 	corpus.find(nodify(word))
@@ -114,17 +113,12 @@ def benchmark(inputs,fns):
 	log.append([inputs,t])
 	report(fns,log)
 
-
-
 if __name__ == '__main__':
 	f1 = '/Users/margoK/Dropbox/autocomplete/corpus/whitmanpoem.txt'
 	test_funcs = (linear_search,try_trie)
 	benchmark((f1,'dead'),test_funcs)
-	# name, files = get_files(directory='/Users/margoK/Dropbox/autocomplete/corpus/shakespeare/')
-	# name, files = get_files(directory='corpus/shakespeare/')
-	# f2 = name+'.txt'
-	# make_file(files,f2)
-	# benchmark((f2,'dream'),test_funcs)
+	f2 = '/Users/margoK/Dropbox/autocomplete/shakespeare.txt'
+	benchmark((f2,'dream'),test_funcs)
 
 
 
