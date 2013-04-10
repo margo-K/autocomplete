@@ -19,6 +19,7 @@ HYPOTHESIS:
 *Trie search = 
 
 """
+from __future__ import print_function
 import os
 import os.path
 import sys
@@ -70,30 +71,32 @@ def report(testfns,log,trial=-1):#defaults to most recent trial
 
 	""")
 
-	print report.substitute({'filename':file_name,
+	print(report.substitute({'filename':file_name,
 							'frequency': freq[search_term],
 							'wordcount': wc,
 							'linecount': lc,
 							'unique': unique,
 							'winner': testfns[t.index(winner)].__name__,
-							'wintime': winner})
+							'wintime': winner}))
 
 	for i in xrange(len(testfns)):
-		print "\t{fn_name}: {time}".format(fn_name = testfns[i].__name__,time=t[i])
-	
+		print("\t{fn_name}: {time}".format(fn_name = testfns[i].__name__,time=t[i]))
+
+def simplereport(testfn,log):
+	"""Report when only one function and one trial is in the log"""
+	report = "\n---REPORT---\nInput(s):{inputs} \nFunction: {function} Time:{time}"
+	print(report.format(inputs=log[0][0],function=testfn[0].__name__,time=log[0][1][0])) 
 
 def stats(log,trials=1):
 	pass
 	# return max_time,min_time,avg_time
-
-
 
 def linear_search(file_name,word):
 	"""Traverse a file, performing fn on each line"""
 	with open(file_name,'r') as f:
 		for line in f:
 			if word in line:
-				print "Found: {}".format(word)
+				print("Found: {}".format(word))
 				break
 
 def trie_build(file_name):
@@ -106,19 +109,36 @@ def try_trie(file_name,word):
 	corpus = trie_build(file_name)
 	trie_search(corpus,word)
 
-def benchmark(inputs,fns):
+def benchmark(inputs,fns,reportfn):
 	log = []
 	t = [timed(fns[i],*inputs) for i in xrange(len(fns))]
 
 	log.append([inputs,t])
-	report(fns,log)
+	reportfn(fns,log)
 
 if __name__ == '__main__':
 	f1 = '/Users/margoK/Dropbox/autocomplete/corpus/whitmanpoem.txt'
-	test_funcs = (linear_search,try_trie)
-	benchmark((f1,'dead'),test_funcs)
 	f2 = '/Users/margoK/Dropbox/autocomplete/shakespeare.txt'
-	benchmark((f2,'dream'),test_funcs)
+
+	corpus = []
+	
+	def trie_build_test(f, _):
+		corpus.append(trie_build(f))
+
+	benchmark((f2,'foo'), [trie_build_test],simplereport)
+	corpus = corpus[0]
+
+	def test_trie_search(_,word):
+		trie_search(corpus,word)
+
+	test_funcs = [linear_search, test_trie_search]#lambda _, word: trie_search(corpus, word)]
+	benchmark((f2, 'dead'), test_funcs, report)
+
+	 # test_funcs = (linear_search,try_trie)
+	 # benchmark((f1,'dead'),test_funcs)
+	# f2 = '/Users/margoK/Dropbox/autocomplete/shakespeare.txt'
+	# benchmark((f2,'dream'),test_funcs)
+
 
 
 
