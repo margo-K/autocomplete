@@ -85,17 +85,16 @@ def cachedproperty(fn):
 
 class Corpus(Node):	
 
-	# directory = {}
-
 	def __init__(self,source):
 		self.value = None
 		self.children = []
-		self.source = source
 		self.isEnd = False
-		for token in tokenize(self.text):
-			nodes = nodify(token)
+		self.source = source
+		words = set(word for line in self.text for word in line.split())
+		self.words = set(token(word) for word in words)
+		for word in self.words:
+			self.insert(nodify(word))
 
-			self.insert(nodes)
 	@property
 	def text(self):
 		"""Return a generator that allows for 'for line in text'"""
