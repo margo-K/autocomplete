@@ -68,9 +68,19 @@ def frequencies(iterator,tokenfn=token):
 	for line in iterator:
 		for word in [tokenfn(st) for st in line.split()]:
 			entry = words.setdefault(word,0)
-			words[word]=entry+1 # increments the count for each word found
 	return words
 
+def cachedproperty(fn):
+	cache = []
+	def cached(self):
+		pdb.set_trace()
+		try:
+			return cache[0]
+		except IndexError:
+			val = fn(self)
+			cache.append(val)
+			return val
+	return cached
 
 
 class Corpus(Node):	
@@ -94,30 +104,21 @@ class Corpus(Node):
 		return (line for line in self.source.splitlines())
 
 	@property
+	@cachedproperty
 	def wordcount(self):
 		"""Return wordcount and non-empty line-count of the file"""
-		wc = 0
-		#pdb.set_trace()
-		for line in self.text:
-			#pdb.set_trace()
-			wc+=len(line.split())
-		return wc
+		return wordcount(self.text)
+		
 
 	@property
+	@cachedproperty
 	def lines(self):
-		lc = 0
-		for line in self.text:
-			lc+=1
-		return lc
+		return linecount(self.text)
 
 	@property
+	@cachedproperty
 	def frequencies(self,tokenfn=lambda st: st.strip(string.punctuation).lower()):
-		words = {}
-		for line in self.text:
-			for word in [tokenfn(st) for st in line.split()]:
-				entry = words.setdefault(word,0)
-				words[word]=entry+1 # increments the count for each word found
-		return words
+		return frequencies(self.text, tokenfn)
 
 	@property
 	def unique(self):
