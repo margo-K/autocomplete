@@ -120,12 +120,17 @@ class Corpus(Node):
 		return len(self.frequencies)
 
 if __name__ == '__main__':
-	f1 = '/Users/margoK/Dropbox/autocomplete/shakespeare.txt'
-	f2 = '/Users/margoK/Dropbox/autocomplete/corpus/whitmanpoem.txt'
-	corp1 = Corpus(f2)
-	corp2 = Corpus(f1)
-	print corp.pprint()
-	print corp.wordcount,corp.lines,corp.frequencies
+	fd, oldterm, oldflags = setup()
+	try:
+		alt_corpus = Corpus('shakespeare.txt')
+		use_letter(autocomplete,corp=alt_corpus)
+	except KeyboardInterrupt:
+		print "Unsetting autocomplete"
+		time.sleep(1)
+	finally:
+		clean_up(fd,oldterm,oldflags)
+	sys.exit()
+
 
 
 
