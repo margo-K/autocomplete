@@ -19,14 +19,24 @@ HYPOTHESIS:
 *Trie search = 
 
 """
-
+from __future__ import print_function
 from benchmark import simplereport, benchmark
-from autocomplete import Corpus, nodify,wordcount,linecount,frequencies
 import sys
 import string
+import pdb
 
 sys.path.insert(0,'/Users/margoK/Dropbox/autocomplete/')
 sys.path.insert(1,'/Users/margoK/Dropbox/autocomplete/corpus/')
+
+from autocomplete import Corpus, nodify,wordcount,linecount,frequencies
+
+def make_file(file_names,newfile):
+	with open(newfile,'a') as t:
+		for fn in file_names:
+			with open(fn) as f:
+				lines = f.readlines()
+				for line in lines:
+					t.write(line)
 
 def linear_search(file_name,word):
 	"""Traverse a file, performing fn on each line"""
@@ -46,45 +56,29 @@ def try_trie(file_name,word):
 	corpus = trie_build(file_name)
 	trie_search(corpus,word)
 
-def report(log,inputs,trial=-1):#defaults to most recent trial
-	inputs = log[trial][0]
-	t =log[trial][1]
-	winner = min(t)
+def corpusreport(log,inputs,corpus=None):#defaults to most recent trial
 
 	file_name = inputs[0]
 	search_term = inputs[1]
-	lc, wc = linecount(open(file_name)),wordcount(open(file_name))
-	freq= frequencies(open(file_name))
-	unique=len(freq)
 
-	report = string.Template("""\
+	corpus_info = string.Template("""\
 	
-				Report
+	Corps Stats
 	----------------------------------
 	File Searched: $filename
 	Frequency of term searched: $frequency
 	Total words: $wordcount
 	Total lines: $linecount
 	Unique words: $unique
-
-	Winning method: $winner
-	Winning time: $wintime
-
-
 	""")
 
-	print(report.substitute({'filename':file_name,
-							'frequency': freq[search_term],
-							'wordcount': wc,
-							'linecount': lc,
-							'unique': unique,
-							'winner': testfns[t.index(winner)].__name__,
-							'wintime': winner}))
-
-	for i in xrange(len(testfns)):
-		print("\t{fn_name}: {time}".format(fn_name = testfns[i].__name__,time=t[i]))
-
-
+	print(corpus_info.substitute({'filename':file_name,
+							'frequency': corpus.frequencies[search_term],
+							'wordcount': corpus.source_wordcount,
+							'linecount': corpus.lines,
+							'unique': corpus.unique}))
+	# pdb.set_trace()
+	simplereport(log,inputs)
 
 if __name__ == '__main__':
 	f1 = '/Users/margoK/Dropbox/autocomplete/corpus/whitmanpoem.txt'
@@ -95,14 +89,14 @@ if __name__ == '__main__':
 	def trie_build_test(f, _):
 		corpus.append(trie_build(f))
 
-	benchmark((f2,'foo'), [trie_build_test],simplereport)
+	benchmark((f2,'foo'),trie_build_test,simplereport)
 	corpus = corpus[0]
 
 	def test_trie_search(_,word):
 		trie_search(corpus,word)
 
 	test_funcs = [linear_search, test_trie_search]#lambda _, word: trie_search(corpus, word)]
-	benchmark((f2, 'dead'), test_funcs, report)
+	benchmark((f2, 'dead'),test_funcs,reportfn=corpusreport,trials=1,corpus=corpus)
 
 
 	 # test_funcs = (linear_search,try_trie)

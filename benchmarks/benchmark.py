@@ -2,6 +2,7 @@ from __future__ import print_function
 import time
 import string
 import unittest
+import pdb
 
 def _timed(fn,*args):
 	start_real = time.time()
@@ -9,13 +10,27 @@ def _timed(fn,*args):
 	end_real = time.time()
 	return end_real - start_real
 
-def simplereport(log,inputs):
-	"""Prints functions and trial times in the log"""
-
-	print("\n---REPORT---\nInput(s):{inputs}".format(inputs=inputs))
-	report = "Function: {function}   Time:{time}"
+def _simple_min(log,trial=-1):
+	winners = []
+	min_val = min([time[trial] for time in log.values()])
 	for fn in log.keys():
-		print(report.format(function=fn.__name__,time=log[fn]))
+		if log[fn][trial]==min_val:
+			winners.append(fn)
+	return min_val,winners
+
+def simplereport(log,inputs):
+	"""Prints functions and trial times in the log
+	Winner is based only on the last value"""
+
+	print("\nReport\n______________\nInput(s):{inputs}".format(inputs=inputs))
+	fn_report = "Function: {function}   Time:{time}"
+	for fn in log.keys():
+		print(fn_report.format(function=fn.__name__,time=log[fn]))
+
+	wintime, winfn = _simple_min(log)
+	if len(winfn)==1:
+		winfn=winfn[0]
+	print("Winning method: {}\nWinning time: {}".format(winfn.__name__,wintime))
 
 def statsreport(log,inputs):
 	report = string.Template("""\
@@ -36,15 +51,15 @@ def statsreport(log,inputs):
 								'mintime':min(times)
 								}))
 
-def benchmark(inputs,fns,reportfn,trials=1,*reportargs):
+def benchmark(inputs,fns,reportfn,trials=1,**reportargs):
 	if type(fns)!=list:
 		fns = [fns]
 	log = {fn:[] for fn in fns}
 
 	for fn in fns:
-		for trial in xrange(trials):
+		for trial in range(trials):
 			log[fn].append(_timed(fn,*inputs))
-	reportfn(log,inputs)
+	reportfn(log,inputs,**reportargs)
 
 class BenchmarkTests(unittest.TestCase):
 
