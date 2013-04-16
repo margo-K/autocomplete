@@ -14,12 +14,12 @@ def get_files(directory='corpus/shakespeare/',subfolders=['comedies/','histories
 
 def autocomplete(prefix,corpus=None,pretty=True):
 	colorprefix = '\t\033[35m{prefix}\033[0m'
-	node = corpus.find(nodify(pre))
+	node = corpus.find(nodify(prefix))
 	if node:
 		found_words =  [str(leaf) for leaf in node.endnodes()]
 		if pretty:
 			for word in found_words:
-				print word.replace(prefix,color.prefix.format(prefix),1)
+				print word.replace(prefix, colorprefix.format(prefix=prefix),1)
 		return found_words
 	else:
 		return None
@@ -38,18 +38,13 @@ def prefix(li):
 def nodify(word):
 	return map(Node,prefix(word))
 
-def make_corpus(file_name,name=None):
-	if name in CORPUS_DIRECTORY:
-		return CORPUS_DIRECTORY[name]
-	root = Node(None)
-
-	for token in tokenize(file_name): # this could be a generator
-		root.insert(nodify(token))
-	if name:
-		print "Adding {} to the canon".format(name)
-		CORPUS_DIRECTORY[name] = root
-		print "You can now access the work by doing CORPUS_DIRECTORY[{}]".format(name)
-	return root
+def make_corpus(files,name=None):
+	corp = Node(None)
+	for file_name in files:
+		with open(file_name) as f:
+			for token in tokenize(f):
+				corp.insert(nodify(token))
+	return corp
 
 def wordcount(iterator):
 	wc = 0
@@ -92,6 +87,8 @@ class Corpus(Node):
 		self.source = source
 		words = set(word for line in self.text for word in line.split())
 		self.words = set(token(word) for word in words)
+		if '' in self.words:
+			self.words.remove('')
 		for word in self.words:
 			self.insert(nodify(word))
 
@@ -104,10 +101,9 @@ class Corpus(Node):
 
 	@property
 	@cachedproperty
-	def wordcount(self):
-		"""Return wordcount and non-empty line-count of the file"""
+	def source_wordcount(self):
+		"""Return wordcount of the file"""
 		return wordcount(self.text)
-		
 
 	@property
 	@cachedproperty
