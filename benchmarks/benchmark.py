@@ -59,9 +59,12 @@ def stats(log,trials=1):
 
 
 def benchmark(inputs,fns,reportfn,*reportargs):
-	log = {} 
+	if type(fns)!=list:
+		fns = [fns]
+	log = {fn:[] for fn in fns}
+	
 	for fn in fns:
-		log[fn] = timed(fn,*inputs)
+		log[fn].append(timed(fn,*inputs))
 	reportfn(log,inputs)
 
 class BenchmarkTests(unittest.TestCase):
