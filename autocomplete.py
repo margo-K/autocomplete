@@ -1,4 +1,3 @@
-import pdb
 from keypress import setup, use_letter,clean_up
 import os
 import sys
@@ -68,7 +67,6 @@ def frequencies(iterator,tokenfn=token):
 def cachedproperty(fn):
 	cache = []
 	def cached(self):
-		pdb.set_trace()
 		try:
 			return cache[0]
 		except IndexError:
