@@ -53,18 +53,38 @@ def simplereport(log,inputs):
 	for fn in log.keys():
 		print(report.format(function=fn.__name__,time=log[fn]))
 
+def statsreport(log,inputs):
+	report = string.Template("""\
+	
+	Report: $function
+	----------------------------------
+
+	AvgTime:$avgtime
+	MaxTime:$maxtime
+	MinTime:$mintime
+	""")
+
+	for fn in log.keys():
+		times = log[fn]
+		print(report.substitute({'function': fn.__name__,
+								'avgtime':sum(times)/len(times),
+								'maxtime':max(times),
+								'mintime':min(times)
+								}))
+
 def stats(log,trials=1):
 	pass
 	# return max_time,min_time,avg_time
 
 
-def benchmark(inputs,fns,reportfn,*reportargs):
+def benchmark(inputs,fns,reportfn,trials=1,*reportargs):
 	if type(fns)!=list:
 		fns = [fns]
 	log = {fn:[] for fn in fns}
-	
+
 	for fn in fns:
-		log[fn].append(timed(fn,*inputs))
+		for trial in xrange(trials):
+			log[fn].append(timed(fn,*inputs))
 	reportfn(log,inputs)
 
 class BenchmarkTests(unittest.TestCase):
@@ -86,6 +106,6 @@ if __name__ == '__main__':
 	def mult(a,b):
 		return a*b
 
-	benchmark((1,2),[add,mult],simplereport)
+	benchmark((1,2),[add,mult],statsreport,trials=10)
 
 
