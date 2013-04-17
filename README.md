@@ -56,3 +56,17 @@ benchmarks/:
 
 ###Status
 ###Notes
+
+###To-Do
+* tests! - include doctests for individual functions; also integration tests (esp. b/c of imports, etc.)
+* change Node.insert & Node.find to accept a string or iterable (instead of nodes ); deprecate prefix_corpus.nodify
+* implement an autocomplete printer (takes in the same paramters as autocomplete)
+ so that autocomplete only returns a list (doesn't auto-print)
+* rewrite corpus.pprint() that prints a series of strings instead of 
+ one long string
+* implement caching for corpuses from given files (perhaps by appending a pickled version to the table)
+* explore replacing make_file with a function that returns a generator (that can be written to a file, if desired)
+* add support for different split parameters in Corpus construction (i.e. split on [' ', '--'], based on 
+ base text)
+* refactor use_letter from keypress module as a decorator
+* look at recent commits of keypress and one in which i found a segfault
