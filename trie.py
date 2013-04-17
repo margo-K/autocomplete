@@ -50,15 +50,16 @@ class Node(object):
 			=> node = Node('hel'), 
 				where node is in the corpus
 		"""
-		node = prefix_nodes[0]
-		child = self.get_child(node) ## return the node in tree
-		
-		if not child: # no matching child 
-			return None
-		if not prefix_nodes[1:]:
-			return child
-		else:
-			return child.find(prefix_nodes[1:])
+		if prefix_nodes:
+			node = prefix_nodes[0]
+			child = self.get_child(node) ## return the node in tree
+			
+			if not child: # no matching child 
+				return None
+			if not prefix_nodes[1:]:
+				return child
+			else:
+				return child.find(prefix_nodes[1:])
 
 	def endnodes(self):
 		cs_ends = []
@@ -91,3 +92,4 @@ class Node(object):
 			for child in self.children:
 				printed+=child.pprint().replace('\n','\n-')
 		return printed
+	
