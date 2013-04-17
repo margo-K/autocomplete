@@ -22,7 +22,8 @@ def autocomplete(prefix,corpus=None,pretty=True):
 
 if __name__ == '__main__':
 	try:
-		alt_corpus = Corpus('shakespeare.txt')
+		alt_corpus = Corpus('sampletexts/allshakespeare.txt')
+		print alt_corpus.pprint()
 		while True:
 			letters = raw_input("Please enter some letters")
 			autocomplete(prefix=letters,corpus=alt_corpus)
