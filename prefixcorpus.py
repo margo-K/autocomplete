@@ -2,6 +2,18 @@ from trie import Node
 import os
 import string
 
+def get_files(directory='sampletexts/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
+	files = (directory+folder+text for folder in subfolders for text in os.listdir(directory+folder))
+	return files
+
+def make_file(file_names,newfile):
+	with open(newfile,'a') as t:
+		for fn in file_names:
+			with open(fn) as f:
+				lines = f.readlines()
+				for line in lines:
+					t.write(line)
+
 def token(st):
 	"""Returns tokenized form of the input st"""
 	return st.strip(string.punctuation).lower()

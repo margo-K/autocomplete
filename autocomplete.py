@@ -1,11 +1,6 @@
-import os
 import sys
 import time
 from prefixcorpus import Corpus,nodify
-
-def get_files(directory='sampletexts/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
-	files = (directory+folder+text for folder in subfolders for text in os.listdir(directory+folder))
-	return files
 
 def autocomplete(prefix,corpus=None,pretty=True):
 	colorprefix = '\t\033[35m{prefix}\033[0m'
@@ -23,7 +18,6 @@ def autocomplete(prefix,corpus=None,pretty=True):
 if __name__ == '__main__':
 	try:
 		alt_corpus = Corpus('sampletexts/allshakespeare.txt')
-		print alt_corpus.pprint()
 		while True:
 			letters = raw_input("Please enter some letters")
 			autocomplete(prefix=letters,corpus=alt_corpus)

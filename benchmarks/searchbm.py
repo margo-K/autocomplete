@@ -30,14 +30,6 @@ sys.path.insert(1,'/Users/margoK/Dropbox/autocomplete/corpus/')
 
 from autocomplete import Corpus, nodify,wordcount,linecount,frequencies
 
-def make_file(file_names,newfile):
-	with open(newfile,'a') as t:
-		for fn in file_names:
-			with open(fn) as f:
-				lines = f.readlines()
-				for line in lines:
-					t.write(line)
-
 def linear_search(file_name,word):
 	"""Traverse a file, performing fn on each line"""
 	with open(file_name,'r') as f:
