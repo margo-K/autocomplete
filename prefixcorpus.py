@@ -2,10 +2,6 @@ from trie import Node
 import os
 import string
 
-def tokenize(open_file):
-	words = (word for line in open_file for word in line.split())
-	return (token(word) for word in words)
-
 def token(st):
 	"""Returns tokenized form of the input st"""
 	return st.strip(string.punctuation).lower()
@@ -48,13 +44,13 @@ def cachedproperty(fn):
 
 class Corpus(Node):	
 
-	def __init__(self,source):
+	def __init__(self,source,tokenfn=token):
 		self.value = None
 		self.children = []
 		self.isEnd = False
 		self.source = source
 		words = set(word for line in self.text for word in line.split())
-		self.words = set(token(word) for word in words)
+		self.words = set(tokenfn(word) for word in words)
 		if '' in self.words:
 			self.words.remove('')
 		for word in self.words:
