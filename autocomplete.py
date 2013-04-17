@@ -1,11 +1,6 @@
-from keypress import setup, use_letter,clean_up
 import os
 import sys
 import time
-import string
-import unittest
-from trie import Node
-import pprint
 from prefixcorpus import Corpus,nodify
 
 def get_files(directory='corpus/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
@@ -26,7 +21,6 @@ def autocomplete(prefix,corpus=None,pretty=True):
 
 
 if __name__ == '__main__':
-	# fd, oldterm, oldflags = setup()
 	try:
 		alt_corpus = Corpus('shakespeare.txt')
 		while True:
@@ -36,8 +30,6 @@ if __name__ == '__main__':
 	except KeyboardInterrupt:
 		print "Unsetting autocomplete"
 		time.sleep(.1)
-	# finally:
-		# clean_up(fd,oldterm,oldflags)
 	sys.exit()
 
 
