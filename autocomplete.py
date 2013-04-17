@@ -3,7 +3,7 @@ import sys
 import time
 from prefixcorpus import Corpus,nodify
 
-def get_files(directory='corpus/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
+def get_files(directory='sampletexts/shakespeare/',subfolders=['comedies/','histories/','tragedies/','poetry/']):
 	files = (directory+folder+text for folder in subfolders for text in os.listdir(directory+folder))
 	return files
 
