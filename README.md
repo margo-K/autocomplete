@@ -70,3 +70,9 @@ benchmarks/:
  base text)
 * refactor use_letter from keypress module as a decorator
 * look at recent commits of keypress and one in which i found a segfault
+
+###Features to Build
+* tool which allows you to build a corpus from a book or collection of books on project gutenberg
+	- instead of just checking the local cache for the work, it would look for a corresponding
+	  work on project gutenberg (and build a corpus from it, giving the user status-updates)
+	- a chrome plugin that allows you to autocomplete from different corpuses
