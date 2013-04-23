@@ -9,7 +9,7 @@ def autocomplete(prefix,corpus=None,pretty=True):
 		found_words =  [str(end) for end in node.endnodes()]
 		return found_words
 	else:
-		return None
+		return []
 
 def autocompleteprint(prefix,word_list):
 	colorprefix = '\t\033[35m{prefix}\033[0m'
