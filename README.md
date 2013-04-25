@@ -14,34 +14,12 @@
 ###Getting Started
 ####Requirements: None (outside of Standard Library)
 ####Open REPL
-```
-```
-###Examples
 
 ```
-from autocomplete import autocomplete,Corpus,nodify
-
-shakespeare = Corpus('sampletexts/allshakespeare.txt') # Construct corpus
-
-autocomplete(corpus=shakespeare,prefix='ham')
->>	hams
->>	hames
->>	hams
->>	hamstring
->>	hamper
->>	hampton
->>	hamlet
->>	hamlets
->>	hamlet
->>	hamlet's
->>	hammer
->>	hammers
->>	hammer
->>	hammer'd
->>	hammering
->>['hams', 'hames', 'hams', 'hamstring', 'hamper', 'hampton', 'hamlet', 'hamlets', 'hamlet', "hamlet's", 'hammer', 'hammers', 
->> 'hammer', "hammer'd", 'hammering']
-
+>>> from autocomplete import autocomplete, Corpus, nodify
+>>> shakespeare = Corpus('sampletexts/allshakespeare.txt')
+>>> autocomplete(corpus=shakespeare,prefix='ham')
+['hams', 'hames', 'hams', 'hamstring', 'hamper', 'hampton', 'hamlet', 'hamlets', 'hamlet', "hamlet's", 'hammer', 'hammers', 'hammer', "hammer'd", 'hammering']
 ```
 ###Tests
 
@@ -60,8 +38,6 @@ benchmarks/:
 ###To-Do
 * tests! - include doctests for individual functions; also integration tests (esp. b/c of imports, etc.)
 * change Node.insert & Node.find to accept a string or iterable (instead of nodes ); deprecate prefix_corpus.nodify
-* implement an autocomplete printer (takes in the same paramters as autocomplete)
- so that autocomplete only returns a list (doesn't auto-print)
 * rewrite corpus.pprint() that prints a series of strings instead of 
  one long string
 * implement caching for corpuses from given files (perhaps by appending a pickled version to the table)
