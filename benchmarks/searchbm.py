@@ -19,7 +19,6 @@ HYPOTHESIS:
 *Trie search = 
 
 """
-from __future__ import print_function
 from benchmark import simplereport, benchmark
 import sys
 import string
@@ -28,14 +27,15 @@ import pdb
 sys.path.insert(0,'/Users/margoK/Dropbox/autocomplete/')
 sys.path.insert(1,'/Users/margoK/Dropbox/autocomplete/corpus/')
 
-from autocomplete import Corpus, nodify,wordcount,linecount,frequencies
+# from autocomplete import Corpus, nodify,wordcount,linecount,frequencies
+from prefixcorpus import Corpus, nodify
 
 def linear_search(file_name,word):
 	"""Traverse a file, performing fn on each line"""
 	with open(file_name,'r') as f:
 		for line in f:
 			if word in line:
-				print("Found: {}".format(word))
+				print "Found: {}".format(word)
 				break
 
 def trie_build(file_name):
@@ -64,31 +64,32 @@ def corpusreport(log,inputs,corpus=None):#defaults to most recent trial
 	Unique words: $unique
 	""")
 
-	print(corpus_info.substitute({'filename':file_name,
+	print corpus_info.substitute({'filename':file_name,
 							'frequency': corpus.frequencies[search_term],
 							'wordcount': corpus.source_wordcount,
 							'linecount': corpus.lines,
-							'unique': corpus.unique}))
+							'unique': corpus.unique})
 	# pdb.set_trace()
 	simplereport(log,inputs)
 
 if __name__ == '__main__':
-	f1 = '/Users/margoK/Dropbox/autocomplete/corpus/whitmanpoem.txt'
-	f2 = '/Users/margoK/Dropbox/autocomplete/shakespeare.txt'
+	f1 = '/Users/margoK/Dropbox/autocomplete/sampletexts/whitmanpoem.txt'
+	f2 = '/Users/margoK/Dropbox/autocomplete/sampletexts/allshakespeare.txt'
 
 	corpus = []
 	
-	def trie_build_test(f, _):
+	def trie_build_test(f):
 		corpus.append(trie_build(f))
 
-	benchmark((f2,'foo'),trie_build_test,simplereport)
-	corpus = corpus[0]
+	# benchmark(inputs = (f2,'foo'),fns=trie_build_test,reportfn=simplereport)
+	benchmark(inputs=(f2,)fns=trie_build_test,reportfn=simplereport)
+	# corpus = corpus[0]
 
 	def test_trie_search(_,word):
 		trie_search(corpus,word)
 
 	test_funcs = [linear_search, test_trie_search]#lambda _, word: trie_search(corpus, word)]
-	benchmark((f2, 'dead'),test_funcs,reportfn=corpusreport,trials=1,corpus=corpus)
+	benchmark(inputs=(f2, 'dead'),fns=test_funcs,reportfn=corpusreport,trials=1,corpus=corpus[0])
 
 
 	 # test_funcs = (linear_search,try_trie)

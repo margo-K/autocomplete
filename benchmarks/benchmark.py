@@ -59,6 +59,7 @@ def benchmark(inputs,fns,reportfn,trials=1,**reportargs):
 	for fn in fns:
 		for trial in range(trials):
 			log[fn].append(_timed(fn,*inputs))
+	#pdb..set_trace()
 	reportfn(log,inputs,**reportargs)
 
 class BenchmarkTests(unittest.TestCase):
