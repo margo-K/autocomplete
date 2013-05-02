@@ -21,7 +21,9 @@ def autocompleteprint(prefix,word_list):
 if __name__ == '__main__':
 	try:
 		alt_corpus = Corpus('sampletexts/allshakespeare.txt')
-		print "Setting autocomplete. \n Please enter some letters:"
+		print "Setting autocomplete"
+		time.sleep(5)
+		print "\nPlease enter some letters"
 		while True:
 			letters = raw_input()
 			words = autocomplete(prefix=letters,corpus=alt_corpus)
