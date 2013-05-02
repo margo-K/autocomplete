@@ -21,13 +21,14 @@ def autocompleteprint(prefix,word_list):
 if __name__ == '__main__':
 	try:
 		alt_corpus = Corpus('sampletexts/allshakespeare.txt')
+		print "Setting autocomplete. \n Please enter some letters:"
 		while True:
-			letters = raw_input("Please enter some letters: ")
+			letters = raw_input()
 			words = autocomplete(prefix=letters,corpus=alt_corpus)
 			autocompleteprint(prefix=letters,word_list=words)
 			time.sleep(.5)
 	except KeyboardInterrupt:
-		print "Unsetting autocomplete"
+		print "\nUnsetting autocomplete"
 		time.sleep(.1)
 	sys.exit()
 
